@@ -17,7 +17,9 @@ import qualified Data.ByteString.Char8 as C8
 import Text.Read (readMaybe)
 import qualified Data.Text.IO as TIO
 import System.Directory (doesFileExist)
-import Control.Monad (unless)
+import Control.Monad (unless, when)
+import System.Environment (getArgs, getEnvironment, lookupEnv)
+import qualified Data.CaseInsensitive as CI
 
 -- From the docs here: https://kubernetes.github.io/ingress-nginx/user-guide/custom-errors/
 -- X-Code          HTTP status code returned by the request
@@ -41,6 +43,9 @@ main = do
 
 inner :: Int -> FilePath -> IO ()
 inner port templatesDir = run port $ \req send -> do
+    env <- getEnvironment
+    let debug = maybe False (\x -> CI.mk x == CI.mk "true") $ HM.lookup "DEBUG" $ HM.fromList env
+    when debug (print req)
     case pathInfo req of
       [x] -> if x == "healthz" then send $ responseBuilder
                         status200

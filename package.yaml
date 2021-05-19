@@ -23,6 +23,7 @@ dependencies:
   - bytestring
   - filepath
   - directory
+  - case-insensitive
 
 executables:
   ingress-fail-page:
