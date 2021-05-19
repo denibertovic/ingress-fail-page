@@ -57,7 +57,7 @@ let
                    ];
         config = {
            Entrypoint = [ docker-entrypoint ];
-           Cmd = [ "${pkgs.haskell.lib.justStaticExecutables haskellPackages.ingress-fail-page}/bin/ingress-fail-page" ];
+           Cmd = [ "${pkgs.haskell.lib.justStaticExecutables haskellPackages.ingress-fail-page}/bin/ingress-fail-page" "3000" "/www" ];
            # TODO: bake in keys and configs as well
            WorkingDir = "/opt/app";
          };
