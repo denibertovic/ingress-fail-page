@@ -31,7 +31,7 @@ import qualified Data.CaseInsensitive as CI
 -- X-Service-Port  Port number of the Service backing the backend
 -- X-Request-ID    Unique ID that identifies the request - same as for backend service
 
--- Right now I only using the X-Code and X-Format headers to return the same code and content-type from upstream.
+-- Right now I only use the X-Code header to return the same code from upstream.
 -- TODO: There is no check that the code or content-type are valid. But since this is to be used with the ingress-nginx I'm going to assume that it's going to be forwarding correct stuff.
 -- In the future we might add more capabilities based on the rest of the headers.
 main :: IO ()
@@ -65,5 +65,5 @@ inner port templatesDir = run port $ \req send -> do
         content <- if exactFileExists then (TIO.readFile exactFile) else if generalFileExists then (TIO.readFile generalFile) else (return "default backend - 404")
         send $ responseBuilder
                   (mkStatus code "")
-                  [("Content-Type", fromMaybe "text/html" $ HM.lookup "X-Format" headers)]
+                  [("Content-Type", "text/html")]
                   (TE.encodeUtf8Builder content)
