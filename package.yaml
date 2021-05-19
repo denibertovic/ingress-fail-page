@@ -1,0 +1,30 @@
+name:                ingress-fail-page
+version:             0.1.0.0
+#synopsis:
+#description:
+homepage:            https://github.com/denibertovic/ingress-fail-page#readme
+license:             BSD3
+author:              Deni Bertovic
+maintainer:          deni@denibertovic.com
+copyright:           2021 Deni Bertovic
+category:            Web
+extra-source-files:
+- README.md
+
+dependencies:
+  - base >= 4.7 && < 5
+  - rio
+  - warp
+  - wai
+  - http-types
+  - mime-types
+  - text
+  - unordered-containers
+  - bytestring
+  - filepath
+  - directory
+
+executables:
+  ingress-fail-page:
+    source-dirs:      src
+    main:             Main.hs

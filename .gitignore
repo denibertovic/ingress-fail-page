@@ -1,0 +1,9 @@
+.stack-work
+.env
+ingress-fail-page.cabal
+*.swp
+dist
+dist-newstyle
+.ghc.environment*
+result
+www
