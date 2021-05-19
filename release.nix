@@ -35,8 +35,6 @@ let
     # set correct permissions on APP_DIR and subfolders
     chown -R user. $APP_DIR
 
-    cp ${./fallback-error-page.html} /fallback-error-page.html
-
     exec pid1 -u user -g user "$@"
   '';
 

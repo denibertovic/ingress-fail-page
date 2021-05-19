@@ -49,17 +49,15 @@ inner port templatesDir = run port $ \req send -> do
              else send $ responseBuilder
                         status404
                         [("Content-Type", "text/html; charset=utf-8")]
-                        (TL.encodeUtf8Builder "Page not found.")
+                        (TL.encodeUtf8Builder "default backend - 404")
       [] -> do
         let headers = HM.fromList $ requestHeaders req
         let code :: Int = maybe 200 (\s -> fromMaybe 200 $ readMaybe $ C8.unpack s) (HM.lookup "X-Code" headers)
         let exactFile = templatesDir </> ((show code) <> ".html")
         let generalFile = templatesDir </> ([(head $ show code)] <> "xx.html")
-        let fallbackErrorPage = "/fallback-error-page.html"
         exactFileExists <- doesFileExist exactFile
         generalFileExists <- doesFileExist generalFile
-        let returnFile = if exactFileExists then exactFile else if generalFileExists then generalFile else fallbackErrorPage
-        content <- TIO.readFile returnFile
+        content <- if exactFileExists then (TIO.readFile exactFile) else if generalFileExists then (TIO.readFile generalFile) else (return "default backend - 404")
         send $ responseBuilder
                   (mkStatus code "")
                   [("Content-Type", fromMaybe "text/html" $ HM.lookup "X-Format" headers)]
