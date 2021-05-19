@@ -41,16 +41,26 @@ main = do
 
 inner :: Int -> FilePath -> IO ()
 inner port templatesDir = run port $ \req send -> do
-    let headers = HM.fromList $ requestHeaders req
-    let code :: Int = maybe 200 (\s -> fromMaybe 200 $ readMaybe $ C8.unpack s) (HM.lookup "X-Code" headers)
-    let exactFile = templatesDir </> ((show code) <> ".html")
-    let generalFile = templatesDir </> ([(head $ show code)] <> "xx.html")
-    let fallbackErrorPage = "/fallback-error-page.html"
-    exactFileExists <- doesFileExist exactFile
-    generalFileExists <- doesFileExist generalFile
-    let returnFile = if exactFileExists then exactFile else if generalFileExists then generalFile else fallbackErrorPage
-    content <- TIO.readFile returnFile
-    send $ responseBuilder
-              (mkStatus code "")
-              [("Content-Type", fromMaybe "text/html" $ HM.lookup "X-Format" headers)]
-              (TE.encodeUtf8Builder content)
+    case pathInfo req of
+      [x] -> if x == "healthz" then send $ responseBuilder
+                        status200
+                        [("Content-Type", "text/html; charset=utf-8")]
+                        (TL.encodeUtf8Builder "OK")
+             else send $ responseBuilder
+                        status404
+                        [("Content-Type", "text/html; charset=utf-8")]
+                        (TL.encodeUtf8Builder "Page not found.")
+      [] -> do
+        let headers = HM.fromList $ requestHeaders req
+        let code :: Int = maybe 200 (\s -> fromMaybe 200 $ readMaybe $ C8.unpack s) (HM.lookup "X-Code" headers)
+        let exactFile = templatesDir </> ((show code) <> ".html")
+        let generalFile = templatesDir </> ([(head $ show code)] <> "xx.html")
+        let fallbackErrorPage = "/fallback-error-page.html"
+        exactFileExists <- doesFileExist exactFile
+        generalFileExists <- doesFileExist generalFile
+        let returnFile = if exactFileExists then exactFile else if generalFileExists then generalFile else fallbackErrorPage
+        content <- TIO.readFile returnFile
+        send $ responseBuilder
+                  (mkStatus code "")
+                  [("Content-Type", fromMaybe "text/html" $ HM.lookup "X-Format" headers)]
+                  (TE.encodeUtf8Builder content)
